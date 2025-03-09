@@ -1,5 +1,5 @@
 // Visor
-let calculation = document.querySelector(".calc")
+let calculation = document.querySelector(".calc");
 let result = document.querySelector(".result");
 let backspace = document.querySelector(".bksp");
 
@@ -28,7 +28,7 @@ const mathOperators = {
     adition: document.querySelector(".adition"),
     arithmeticSignal: document.querySelector(".arithmetic-signal"),
     dot: document.querySelector(".dot"),
-    equal: document.querySelector(".equal")
+    equal: document.querySelector(".equal"),
 }
 
 
@@ -40,7 +40,7 @@ let mathOperatorValue;
 for(let button of Object.values(numbers)) {
     button.addEventListener("click", () => {
         calculation.textContent += button.textContent;
-        return numberValue = Number(button.textContent)
+        return numberValue = Number(button.textContent);
     })
 }
 
@@ -49,7 +49,7 @@ for(let button of Object.values(numbers)) {
 for(let button of Object.values(mathOperators)) {
     button.addEventListener("click", () => {
         calculation.textContent += button.textContent;
-        return mathOperatorValue = button.textContent
+        return mathOperatorValue = button.textContent;
     })
 }
 
