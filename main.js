@@ -33,14 +33,19 @@ const mathOperators = {
 
 
 // For receive the number and the math operator
-let numberValue;
+let numberValue = [];
+let lastValue;
+let currentValue;
+
 let mathOperatorValue;
+let showResult;
+
 
 // Numbers
 for(let button of Object.values(numbers)) {
     button.addEventListener("click", () => {
         calculation.textContent += button.textContent;
-        return numberValue = Number(button.textContent);
+        return numberValue.push(Number(button.textContent));
     })
 }
 
@@ -48,8 +53,28 @@ for(let button of Object.values(numbers)) {
 //Math operators
 for(let button of Object.values(mathOperators)) {
     button.addEventListener("click", () => {
-        calculation.textContent += button.textContent;
-        return mathOperatorValue = button.textContent;
-    })
+        if (button !== mathOperators.equal) {
+            calculation.textContent += button.textContent;
+            lastValue = numberValue.join("");
+            numberValue = [];
+            mathOperatorValue = button.textContent;
+            return lastValue;
+        }     
+    });
 }
 
+
+
+// Result 
+mathOperators.equal.addEventListener("click", () => {
+    currentValue = numberValue.join("");
+    if (mathOperatorValue === "÷") {
+         result.textContent = Number(lastValue) / Number(currentValue);
+    } else if (mathOperatorValue === "×") {
+        result.textContent = Number(lastValue) * Number(currentValue);
+    } else if (mathOperatorValue === "−") {
+        result.textContent = Number(lastValue) - Number(currentValue);
+    } else if (mathOperatorValue === "+") {
+        result.textContent = Number(lastValue) + Number(currentValue);
+    }
+})
