@@ -19,16 +19,19 @@ const numbers = {
 };
 
 const mathOperators = {
-    clear: document.querySelector(".clear"),
-    parentheses: document.querySelector(".parentheses"),
     percent: document.querySelector(".percent"),
     divide: document.querySelector(".divide"),
     multiply: document.querySelector(".multiply"),
     subtract: document.querySelector(".subtract"),
     adition: document.querySelector(".adition"),
-    arithmeticSignal: document.querySelector(".arithmetic-signal"),
-    dot: document.querySelector(".dot"),
     equal: document.querySelector(".equal"),
+}
+
+const functionsBtns = {
+    clear: document.querySelector(".clear"),
+    dot: document.querySelector(".dot"),
+    parentheses: document.querySelector(".parentheses"),
+    arithmeticSignal: document.querySelector(".arithmetic-signal"),
 }
 
 
@@ -45,7 +48,7 @@ let showResult;
 for(let button of Object.values(numbers)) {
     button.addEventListener("click", () => {
         calculation.textContent += button.textContent;
-        return numberValue.push(Number(button.textContent));
+        numberValue.push(Number(button.textContent));
     })
 }
 
@@ -53,15 +56,26 @@ for(let button of Object.values(numbers)) {
 //Math operators
 for(let button of Object.values(mathOperators)) {
     button.addEventListener("click", () => {
-        if (button !== mathOperators.equal) {
+        if (button !== mathOperators.equal ) {
             calculation.textContent += button.textContent;
             lastValue = numberValue.join("");
             numberValue = [];
             mathOperatorValue = button.textContent;
             return lastValue;
-        }     
+        }
     });
 }
+
+
+//Clear 
+functionsBtns.clear.addEventListener("click", () => {
+    numberValue = [];
+    lastValue = "";
+    currentValue = "";
+    mathOperatorValue = "";
+    result.textContent = "";
+    calculation.textContent = "";
+});
 
 
 
@@ -76,5 +90,11 @@ mathOperators.equal.addEventListener("click", () => {
         result.textContent = Number(lastValue) - Number(currentValue);
     } else if (mathOperatorValue === "+") {
         result.textContent = Number(lastValue) + Number(currentValue);
-    }
+    } else if (mathOperatorValue === "%") {
+        if (lastValue) {
+            result.textContent = Number(lastValue) * Number(currentValue) / 100;
+        } else {
+            result.textContent = Number(lastValue) / 100;
+        }
+    } 
 })
