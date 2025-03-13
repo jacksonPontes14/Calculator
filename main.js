@@ -37,11 +37,14 @@ const functionsBtns = {
 
 // For receive the number and the math operator
 let numberValue = [];
-let lastValue;
-let currentValue;
+let lastValue = 0;
+let currentValue = 0;
+let mathOperatorValue = "";
+let showResult = 0;
+let numberEx = [];
+let openParenthesesCount = 0;
 
-let mathOperatorValue;
-let showResult;
+
 
 
 // Numbers
@@ -49,6 +52,7 @@ for(let button of Object.values(numbers)) {
     button.addEventListener("click", () => {
         calculation.textContent += button.textContent;
         numberValue.push(Number(button.textContent));
+        numberEx.push(button.textContent);
     })
 }
 
@@ -58,11 +62,13 @@ for(let button of Object.values(mathOperators)) {
     button.addEventListener("click", () => {
         if (button !== mathOperators.equal ) {
             calculation.textContent += button.textContent;
-            lastValue = numberValue.join("");
+            numberEx.push(button.textContent);
+            lastValue = Number(numberValue.join(""));
             numberValue = [];
+            numberValue.push(Number(button.textContent));
             mathOperatorValue = button.textContent;
-            return lastValue;
         }
+
     });
 }
 
@@ -75,26 +81,123 @@ functionsBtns.clear.addEventListener("click", () => {
     mathOperatorValue = "";
     result.textContent = "";
     calculation.textContent = "";
+    numberEx = [];
+    openParenthesesCount = 0;
 });
+
+//dot
+functionsBtns.dot.addEventListener("click", () => {
+    if (!numberValue.includes(".") && numberValue.length > 0)
+    calculation.textContent += ".";
+    numberValue.push(".");
+    numberEx.push(".")
+});
+
+//parentheses
+functionsBtns.parentheses.addEventListener("click", () => {
+    const lastChar = calculation.textContent.slice(-1) || "";
+    const operators = ["+", "−", "×", "÷", "%"];
+    const lastIsNumber = !isNaN(parseInt(lastChar)) || lastChar === ".";
+
+    if (openParenthesesCount === 0 || lastChar === "(") {
+        numberEx.push("(");
+        calculation.textContent += "(";
+        openParenthesesCount++;
+    } else if (openParenthesesCount > 0 && lastIsNumber && lastChar !== ")") {
+        numberEx.push(")");
+        calculation.textContent += ")";
+        openParenthesesCount--;
+    } else if (operators.includes(lastChar)) {
+        numberEx.push("(");
+        calculation.textContent += "(";
+        openParenthesesCount++;
+    }
+});
+
+//arithmetic-signal
+functionsBtns.arithmeticSignal.addEventListener("click", () => {
+    if (numberValue.length > 0) {
+        let currentNumber = Number(numberValue.join(""));
+        currentNumber = -currentNumber;
+        numberValue = currentNumber.toString().split("");
+        let expressionSoFar = calculation.textContent.slice(0, -numberValue.length);
+        calculation.textContent = expressionSoFar + currentNumber;
+        numberEx = numberEx.slice(0, -numberValue.length).concat(currentNumber.toString().split(""));
+    } else if (lastValue !== 0) {
+        lastValue = -lastValue;
+        calculation.textContent = lastValue;
+        numberEx = [lastValue.toString()];
+    }
+});
+
+
+backspace.addEventListener("click", ()=> {
+    const currentDisplay = calculation.textContent;
+
+    if (currentDisplay === "Erro") {
+        calculation.textContent = "0";
+        result.textContent = "";
+        lastValue = 0;
+        numberValue = [];
+        mathOperatorValue = "";
+        numberEx = [];
+        openParenthesesCount = 0;
+        return;
+    }
+
+    if (numberValue.length > 0) {
+        numberValue.pop();
+        numberEx.pop();
+        calculation.textContent = numberValue.join("");
+    } else if (currentDisplay.length > 1) {
+        const lastChar = currentDisplay.slice(-1);
+        const operators = ["+", "−", "×", "÷", "%", "(", ")"];
+
+        if (operators.includes(lastChar)) {
+            if (lastChar === "(") openParenthesesCount--;
+            if (lastChar === ")") openParenthesesCount++;
+            numberEx.pop();
+            calculation.textContent = currentDisplay.slice(0, -1);
+            if (["+", "−", "×", "÷", "%"].includes(lastChar)) mathOperatorValue = "";
+        } else {
+            calculation.textContent = currentDisplay.slice(0, -1) || "0";
+            lastValue = Number(calculation.textContent) || 0;
+        }
+    } else {
+        calculation.textContent = "0";
+        result.textContent = "";
+        lastValue = "";
+        numberValue = [];
+        mathOperatorValue = "";
+        numberEx = [];
+        openParenthesesCount = 0;
+    }
+})
+
 
 
 
 // Result 
 mathOperators.equal.addEventListener("click", () => {
-    currentValue = numberValue.join("");
-    if (mathOperatorValue === "÷") {
-         result.textContent = Number(lastValue) / Number(currentValue);
-    } else if (mathOperatorValue === "×") {
-        result.textContent = Number(lastValue) * Number(currentValue);
-    } else if (mathOperatorValue === "−") {
-        result.textContent = Number(lastValue) - Number(currentValue);
-    } else if (mathOperatorValue === "+") {
-        result.textContent = Number(lastValue) + Number(currentValue);
-    } else if (mathOperatorValue === "%") {
-        if (lastValue) {
-            result.textContent = Number(lastValue) * Number(currentValue) / 100;
+    try {
+        // Unir os valores e substituir operadores simbólicos
+        let expression = numberEx.join("")
+            .replace(/×/g, "*")
+            .replace(/÷/g, "/")
+            .replace(/−/g, "-")
+            .replace(/%/g, "/100");
+
+        // Usar a função evaluate da math.js
+        let showResult = math.evaluate(expression); 
+
+        if (!Number.isFinite(showResult)) {
+            result.textContent = "Erro";
         } else {
-            result.textContent = Number(lastValue) / 100;
+            result.textContent = showResult;
+            calculation.textContent = showResult;
+            numberEx = showResult.toString().split("");
         }
-    } 
-})
+    } catch (error) {
+        result.textContent = "Erro";
+    }
+});
