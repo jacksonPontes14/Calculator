@@ -180,14 +180,12 @@ backspace.addEventListener("click", ()=> {
 // Result 
 mathOperators.equal.addEventListener("click", () => {
     try {
-        // Unir os valores e substituir operadores simbólicos
         let expression = numberEx.join("")
             .replace(/×/g, "*")
             .replace(/÷/g, "/")
             .replace(/−/g, "-")
             .replace(/%/g, "/100");
 
-        // Usar a função evaluate da math.js
         let showResult = math.evaluate(expression); 
 
         if (!Number.isFinite(showResult)) {
